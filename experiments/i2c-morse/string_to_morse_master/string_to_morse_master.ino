@@ -7,6 +7,7 @@
 
   void setup() {
     Wire.begin();       // join i2c bus (address optional for master)
+    Serial.begin(9600); // start serial so the prompt and input work
     input_morse();
   }
 
