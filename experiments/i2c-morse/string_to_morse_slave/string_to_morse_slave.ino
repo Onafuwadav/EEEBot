@@ -174,6 +174,8 @@ char morse2char(String m) {
     return 'l';
   } else if (m.equals(morse_m)) {
     return 'm';
+  } else if (m.equals(morse_n)) {
+    return 'n';
   } else if (m.equals(morse_o)) {
     return 'o';
   } else if (m.equals(morse_p)) {
