@@ -4,6 +4,7 @@
 
 String message;
 String token;
+volatile bool newMessage = false;  // set by receiveEvent, cleared by loop
 // Here is where I create the library of morse code
 char morse_a[] = ".-";
 char morse_b[] = "-...";
@@ -212,17 +213,29 @@ void setup() {
 }
 
 void loop() {
+  if (newMessage) {
+    noInterrupts();           // copy the message so the next I2C write can't change it mid-decode
+    String received = message;
+    newMessage = false;
+    interrupts();
+    decodeMessage(received);
+  }
 }
 
 
+// Runs inside the I2C interrupt: only store the bytes and flag them.
+// Serial printing and delay() don't belong here.
 void receiveEvent(int howMany) {
   message = "";
   while (Wire.available()) {  // loop whilst bus is busy
     char c = Wire.read();     // receive data byte by byte
     message += c;             // form complete string
   }
+  newMessage = true;
+}
+
+void decodeMessage(String message) {
   Serial.println(message);  // write string to serial monitor
-  delay(5000);
 
   char str[message.length() + 1];
   strcpy(str, message.c_str());
