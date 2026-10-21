@@ -1,0 +1,17 @@
+﻿# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Arduino build output
+build/
+*.elf
+*.hex
+*.bin
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
