@@ -18,7 +18,7 @@
   }
 
   void input_morse(){
-    while(val = false) {
+    while(!val) {         // keep asking until a valid message is entered
       Serial.println("Enter morse code: ");
       scanf("%s", &message);
       for(int i = 0; i < message.length(); i++){
