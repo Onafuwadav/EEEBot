@@ -32,23 +32,12 @@ void setup() {
   pinMode(enB, OUTPUT);  
   speedSetting = 200;
   motors(speedSetting, speedSetting);
+  stopMotors();
+  myservo.write(90);  // wheels straight until the first command arrives
 }
 
 
 void loop() {
-  myservo.write(90);
-  delay(7500);
-  goForwards();
-  delay(2000);
-  stopMotors();
-  delay(1000);
-  myservo.write(70);
-  goForwards();
-  delay(3000);
-  myservo.write(120);
-  goForwards();
-  delay(1000);
-  myservo.write(0);
 }
 
 
