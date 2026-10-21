@@ -41,7 +41,7 @@ void loop(){
       str = "";
       Serial.println(str);
 
-    }else if(key!='#' && str.length() < MAX_CMD_LEN){
+    }else if(key!='*' && key!='#' && str.length() < MAX_CMD_LEN){
       lcd.print(key);
       str.concat(key);
       Serial.println(str);
