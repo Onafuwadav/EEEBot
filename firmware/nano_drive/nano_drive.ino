@@ -22,7 +22,7 @@ void setup() {
   Wire.begin(0x08);              // join i2c bus with address 8
   Wire.onReceive(receiveEvent);  // create a receive event
   Serial.begin(9600);            // start serial to visualise data
-  Serial.print("lol");
+  Serial.println("Nano drive ready - waiting for I2C commands on 0x08");
   myservo.attach(servoPin); 
   pinMode(INa, OUTPUT);
   pinMode(INb, OUTPUT);
@@ -53,7 +53,7 @@ void loop() {
 
 
 int receiveEvent() {
-  Serial.print("lolrrr");
+  Serial.print("Received command: ");
   message = "";
   while (Wire.available()) {  // loop whilst bus is busy
     char c = Wire.read();     // receive data byte by byte
