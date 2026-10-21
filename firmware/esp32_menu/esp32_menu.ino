@@ -37,7 +37,7 @@ void loop(){
 
     }else if(key=='#'){
       Serial.println(key);
-      lcd.print(key);
+      lcd.clear();          // wipe the old command off the screen
       str = "";
       Serial.println(str);
 
