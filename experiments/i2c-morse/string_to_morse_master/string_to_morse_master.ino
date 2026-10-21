@@ -20,7 +20,9 @@
   void input_morse(){
     while(!val) {         // keep asking until a valid message is entered
       Serial.println("Enter morse code: ");
-      scanf("%s", &message);
+      while (!Serial.available()) {}            // wait for the user to type a line
+      message = Serial.readStringUntil('\n');   // Arduino has no stdin, so scanf can't be used
+      message.trim();                           // drop the trailing '\r' from the serial monitor
       for(int i = 0; i < message.length(); i++){
         if(message[i] == "." || message[i] == "-" || message[i] == " "){
           val = true;
