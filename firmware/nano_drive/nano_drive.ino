@@ -18,6 +18,12 @@ volatile bool move = false;  // set by receiveEvent when a new command arrives
 #define INc A2 //Channel B direction
 #define INd A3 //Channel B direction
 
+// Timing calibration at speedSetting = 200. These are starting values:
+// send "11" (forward 10 cm) and "390" (90 deg clockwise) from the keypad
+// and adjust until the robot matches the maze grid.
+#define MS_PER_100MM 400UL  // ms to drive 10 cm
+#define MS_PER_90DEG 650UL  // ms to turn 90 degrees
+
 void setup() {
   Wire.begin(0x08);              // join i2c bus with address 8
   Wire.onReceive(receiveEvent);  // create a receive event
@@ -63,26 +69,40 @@ void executeCommand(String command) {
   Serial.print("Received command: ");
   Serial.println(command);
   order = command.substring(0, 1).toInt();
-  distance = command.substring(1).toInt() * 100;
+  distance = command.substring(1).toInt() * 100;  // forward/back: quantity is in 10 cm steps -> mm
+  int angle = distance / 100;                       // turns: quantity is the angle in degrees
   if(order == 1){
     goForwards();
-    delay(300000);
+    delay(driveTime(distance));
     stopMotors();
   }else if(order == 2){
     goBackwards();
-    delay(300000);
+    delay(driveTime(distance));
     stopMotors();
   }else if(order == 3){
     myservo.write(120);
     goClockwise();
-    delay(300000);
+    delay(turnTime(angle));
     stopMotors();
   }else if(order == 4){
     myservo.write(60);
     goAntiClockwise();
-    delay(300000);
+    delay(turnTime(angle));
     stopMotors();
+  }else{
+    Serial.println("Unknown order - expected 1 to 4");
   }
+  myservo.write(90);  // straighten the wheels ready for the next command
+}
+
+// Time to drive distance mm at speedSetting
+unsigned long driveTime(int distanceMm) {
+  return (unsigned long)distanceMm * MS_PER_100MM / 100;
+}
+
+// Time to turn angle degrees at speedSetting
+unsigned long turnTime(int angle) {
+  return (unsigned long)angle * MS_PER_90DEG / 90;
 }
 
 void motors(int leftSpeed, int rightSpeed) {
