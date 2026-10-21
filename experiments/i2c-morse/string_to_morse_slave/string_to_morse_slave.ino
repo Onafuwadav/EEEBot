@@ -215,7 +215,7 @@ void loop() {
 }
 
 
-int receiveEvent() {
+void receiveEvent(int howMany) {
   message = "";
   while (Wire.available()) {  // loop whilst bus is busy
     char c = Wire.read();     // receive data byte by byte
