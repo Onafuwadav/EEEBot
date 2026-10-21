@@ -24,7 +24,7 @@
       message = Serial.readStringUntil('\n');   // Arduino has no stdin, so scanf can't be used
       message.trim();                           // drop the trailing '\r' from the serial monitor
       for(int i = 0; i < message.length(); i++){
-        if(message[i] == "." || message[i] == "-" || message[i] == " "){
+        if(message[i] == '.' || message[i] == '-' || message[i] == ' '){
           val = true;
         }else{
           val = false;
