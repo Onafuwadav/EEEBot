@@ -5,6 +5,7 @@
 #include <math.h>
 
 String str = "";
+const byte MAX_CMD_LEN = 16; // one LCD line, and well inside the 32-byte I2C buffer
 const byte rows = 4; //four rows
 const byte cols = 3; //three columns
 char keys[rows][cols] = {
@@ -40,7 +41,7 @@ void loop(){
       str = "";
       Serial.println(str);
 
-    }else if(key!='#'){
+    }else if(key!='#' && str.length() < MAX_CMD_LEN){
       lcd.print(key);
       str.concat(key);
       Serial.println(str);
@@ -49,12 +50,8 @@ void loop(){
 }
 
 void send_arduino(){
-  char arr[32]; 
-  strcpy(arr, str.c_str());
   Wire.beginTransmission(0x08); // transmit to slave device address 8
-    for(int i = 0; i < str.length(); i++){
-      Wire.write(arr[i]);
-    }      
+  Wire.write((const uint8_t *)str.c_str(), str.length());
   Wire.endTransmission(); 
   str = "";
 }
