@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eeebot-vision"
+version = "1.0.0"
+description = "EEEBot symbol recognition and coloured-line detection (OpenCV, no ML)"
+requires-python = ">=3.9"
+dependencies = ["opencv-python-headless>=4.8", "numpy>=1.24"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+pi = ["paho-mqtt>=1.6"]
+
+[tool.setuptools]
+packages = ["eeebot_vision"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
