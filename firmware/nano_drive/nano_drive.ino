@@ -24,6 +24,17 @@ volatile bool move = false;  // set by receiveEvent when a new command arrives
 #define MS_PER_100MM 400UL  // ms to drive 10 cm
 #define MS_PER_90DEG 650UL  // ms to turn 90 degrees
 
+// Wheel encoders. Set USE_ENCODERS to 1 once the encoder pins below are
+// confirmed against the PCB's encoder header; D2/D3 are the Nano's
+// external-interrupt pins. With 0 the timings above are used instead.
+#define USE_ENCODERS 0
+#define encoderLeftPin 2
+#define encoderRightPin 3
+#define PULSES_PER_100MM 20UL   // calibrate: pulses counted over 10 cm
+#define PULSES_PER_90DEG 15UL   // calibrate: pulses counted over a 90 deg turn
+volatile unsigned long leftPulses = 0;
+volatile unsigned long rightPulses = 0;
+
 void setup() {
   Wire.begin(0x08);              // join i2c bus with address 8
   Wire.onReceive(receiveEvent);  // create a receive event
@@ -36,6 +47,12 @@ void setup() {
   pinMode(INd, OUTPUT);
   pinMode(enA, OUTPUT);
   pinMode(enB, OUTPUT);  
+#if USE_ENCODERS
+  pinMode(encoderLeftPin, INPUT_PULLUP);
+  pinMode(encoderRightPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(encoderLeftPin), countLeft, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoderRightPin), countRight, RISING);
+#endif
   speedSetting = 200;
   motors(speedSetting, speedSetting);
   stopMotors();
@@ -73,21 +90,21 @@ void executeCommand(String command) {
   int angle = distance / 100;                       // turns: quantity is the angle in degrees
   if(order == 1){
     goForwards();
-    delay(driveTime(distance));
+    moveFor(driveTime(distance), (unsigned long)distance * PULSES_PER_100MM / 100);
     stopMotors();
   }else if(order == 2){
     goBackwards();
-    delay(driveTime(distance));
+    moveFor(driveTime(distance), (unsigned long)distance * PULSES_PER_100MM / 100);
     stopMotors();
   }else if(order == 3){
     myservo.write(120);
     goClockwise();
-    delay(turnTime(angle));
+    moveFor(turnTime(angle), (unsigned long)angle * PULSES_PER_90DEG / 90);
     stopMotors();
   }else if(order == 4){
     myservo.write(60);
     goAntiClockwise();
-    delay(turnTime(angle));
+    moveFor(turnTime(angle), (unsigned long)angle * PULSES_PER_90DEG / 90);
     stopMotors();
   }else{
     Serial.println("Unknown order - expected 1 to 4");
@@ -104,6 +121,41 @@ unsigned long driveTime(int distanceMm) {
 unsigned long turnTime(int angle) {
   return (unsigned long)angle * MS_PER_90DEG / 90;
 }
+
+// Keep the motors running until the move is done. With encoders, stop
+// once the average wheel count reaches targetPulses (giving up after
+// twice the calibrated time in case an encoder is disconnected).
+// Without encoders, just wait the calibrated time.
+void moveFor(unsigned long timeMs, unsigned long targetPulses) {
+#if USE_ENCODERS
+  noInterrupts();
+  leftPulses = 0;
+  rightPulses = 0;
+  interrupts();
+  unsigned long start = millis();
+  while (millis() - start < 2 * timeMs) {
+    noInterrupts();
+    unsigned long average = (leftPulses + rightPulses) / 2;
+    interrupts();
+    if (average >= targetPulses) {
+      return;
+    }
+  }
+  Serial.println("Encoder timeout - check encoder wiring");
+#else
+  (void)targetPulses;
+  delay(timeMs);
+#endif
+}
+
+#if USE_ENCODERS
+void countLeft() {
+  leftPulses++;
+}
+void countRight() {
+  rightPulses++;
+}
+#endif
 
 void motors(int leftSpeed, int rightSpeed) {
   analogWrite(enA, leftSpeed);
