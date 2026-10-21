@@ -25,15 +25,28 @@ void setup()
   Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.setCursor(0, 1);
-  lcd.print("hello");
+  lcd.print("1F 2B 3CW 4ACW");  // key for the order digit
+  lcd.setCursor(0, 0);           // commands are typed on the top line
 }
 
 void loop(){
   char key = keypad.getKey();
   if(key){
     if(key=='*' && str.length() >= 2){
-      send_arduino();
-      Serial.println("sent");
+      if(valid_command(str)){
+        String sent = str;
+        send_arduino();
+        Serial.println("sent");
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("Sent " + sent);
+        lcd.setCursor(0, 0);
+      }else{
+        Serial.println("invalid command");
+        lcd.setCursor(0, 1);
+        lcd.print("Invalid command ");
+        lcd.setCursor(str.length(), 0);
+      }
 
     }else if(key=='#'){
       Serial.println(key);
@@ -47,6 +60,25 @@ void loop(){
       Serial.println(str);
     }
   }
+}
+
+// A command is <order><quantity>: order 1 = forward, 2 = back,
+// 3 = clockwise, 4 = anticlockwise. Forward/back quantities are 10 cm
+// steps (capped at 99 so quantity * 100 still fits the Nano's 16-bit int);
+// turns must be 90 or 180 degrees.
+bool valid_command(String cmd){
+  if(cmd.length() < 2){
+    return false;
+  }
+  char order = cmd.charAt(0);
+  int quantity = cmd.substring(1).toInt();
+  if(order == '1' || order == '2'){
+    return quantity > 0 && quantity <= 99;
+  }
+  if(order == '3' || order == '4'){
+    return quantity == 90 || quantity == 180;
+  }
+  return false;
 }
 
 void send_arduino(){
