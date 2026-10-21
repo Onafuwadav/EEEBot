@@ -9,7 +9,7 @@ int order;
 int distance;
 float steeringAngle;
 byte speedSetting = 0;
-bool move;
+volatile bool move = false;  // set by receiveEvent when a new command arrives
 
 #define enA 5 //EnableA command line - should be a PWM pin
 #define enB 6 //EnableB command line - should be a PWM pin
@@ -38,19 +38,32 @@ void setup() {
 
 
 void loop() {
+  if (move) {
+    noInterrupts();           // copy the command so a new I2C write can't change it mid-move
+    String command = message;
+    move = false;
+    interrupts();
+    executeCommand(command);
+  }
 }
 
 
-int receiveEvent() {
-  Serial.print("Received command: ");
+// Runs inside the I2C interrupt: only store the command and flag it.
+// The movement (and its delays) happens in loop().
+void receiveEvent(int howMany) {
   message = "";
   while (Wire.available()) {  // loop whilst bus is busy
     char c = Wire.read();     // receive data byte by byte
     message += c;             // form complete string
   }
-  Serial.println(message);
-  order = message.substring(0, 1).toInt();
-  distance = message.substring(1).toInt() * 100;
+  move = true;
+}
+
+void executeCommand(String command) {
+  Serial.print("Received command: ");
+  Serial.println(command);
+  order = command.substring(0, 1).toInt();
+  distance = command.substring(1).toInt() * 100;
   if(order == 1){
     goForwards();
     delay(300000);
