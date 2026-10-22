@@ -1,6 +1,6 @@
 # EEEBot
 
-[![CI](https://github.com/YOUR-USERNAME/EEEBot/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR-USERNAME/EEEBot/actions/workflows/ci.yml)
+[![CI](https://github.com/Onafuwadav/EEEBot/actions/workflows/ci.yml/badge.svg)](https://github.com/Onafuwadav/EEEBot/actions/workflows/ci.yml)
 
 A servo-steered robot car built by a team of three for EEEE1002 (Construction
 Project), first year of Electrical & Electronic Engineering at the University
