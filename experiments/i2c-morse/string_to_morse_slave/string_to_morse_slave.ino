@@ -34,7 +34,7 @@ char morse_y[] = "-.--";
 char morse_z[] = "--..";
 
 // Here is where I convert regular ASCII characters into morse code
-char* char2morse(char c) {
+const char* char2morse(char c) {
   switch (c) {
     case 'a':
       return morse_a;
