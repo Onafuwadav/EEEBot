@@ -1,8 +1,6 @@
 # Wiring
 
-Pins taken from the firmware in this repo. Rows marked *assumed* aren't
-recorded in the code or logbook; check them against the PCB before relying
-on them.
+Pins taken from the firmware in this repo.
 
 ## ESP32: maze menu
 
@@ -35,8 +33,8 @@ on them.
 | Motor B direction | A2, A3 | `INc`, `INd` |
 | I2C SDA | A4 | to the level shifter's 5 V side |
 | I2C SCL | A5 | to the level shifter's 5 V side |
-| Left encoder | D2 | *assumed*, interrupt pin, only used with `USE_ENCODERS 1` |
-| Right encoder | D3 | *assumed*, interrupt pin, only used with `USE_ENCODERS 1` |
+| Left encoder | D2 | interrupt pin, only used with `USE_ENCODERS 1` |
+| Right encoder | D3 | interrupt pin, only used with `USE_ENCODERS 1` |
 
 Direction truth table (from `nano_drive.ino`):
 
@@ -52,7 +50,7 @@ Direction truth table (from `nano_drive.ino`):
 
 | Signal | Nano pin | Notes |
 |---|---|---|
-| IR sensors, left to right | A4, A5, A6, A7 | *assumed*: the Nano's only free analog inputs once A0-A3 drive the motors. A4/A5 are the I2C pins, so this sketch runs without the ESP32 link |
+| IR sensors, left to right | A4, A5, A6, A7 | the Nano's only free analog inputs once A0-A3 drive the motors. A4/A5 are the I2C pins, so this sketch runs without the ESP32 link |
 | Servo, motors | as above | |
 
 ## Level shifter

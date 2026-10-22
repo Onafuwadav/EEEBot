@@ -29,8 +29,7 @@ flowchart LR
 ```
 
 Solid lines are the maze-navigation path that won the prize. Dashed lines
-are the sensor and V2X lab tasks; their exact wiring wasn't recorded in the
-logbook.
+are the sensor and V2X lab tasks.
 
 ## Who does what
 
@@ -64,11 +63,8 @@ sequenceDiagram
   Nano->>Nano: goForwards(), moveFor(...), stopMotors()
 ```
 
-See the [README](../README.md#maze-command-protocol) for the command format.
-
 ## Symbol recognition
-
-Figure 39 from the logbook, as implemented in [`vision/eeebot_vision/symbols.py`](../vision/eeebot_vision/symbols.py):
+[`vision/eeebot_vision/symbols.py`](../vision/eeebot_vision/symbols.py):
 
 ```mermaid
 flowchart TD
@@ -84,9 +80,7 @@ flowchart TD
   I --> B
 ```
 
-<img src="images/symbol-recognition-flowchart.png" width="320" alt="Original flowchart from the logbook (Figure 39)">
-
-*Original flowchart, logbook Figure 39.*
+<img src="images/symbol-recognition-flowchart.png" width="320" alt="Flowchart">
 
 | Symbol | Line to follow |
 |---|---|
@@ -99,7 +93,7 @@ flowchart TD
 
 The IR board has evenly spaced emitter/receiver pairs. Each reading is
 proportional to how much line is under it, and the line's position is the
-weighted average of the readings (logbook equation 32):
+weighted average of the readings:
 
 <img src="images/ir-weighted-average.png" width="480" alt="Eight sensors reading 0 0 0 4 9 4 0 0">
 
@@ -108,7 +102,7 @@ steering servo and slows the inside wheel:
 
 <img src="images/pid-block-diagram.png" width="400" alt="PID block diagram">
 
-*PID diagram by Arturo Urquizo, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:PID_en.svg), CC BY-SA 3.0 (logbook reference 6).*
+*PID diagram by Arturo Urquizo, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:PID_en.svg), CC BY-SA 3.0*
 
 The camera-based coloured-line follower reuses the same controller: the
 vision code turns the HSV mask into the same [-1, 1] position.

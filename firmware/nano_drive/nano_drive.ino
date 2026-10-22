@@ -1,7 +1,7 @@
 #include <Wire.h>  
 #include <stdio.h>
 #include <string.h>
-#include <Servo.h>    //include the servo library
+#include <Servo.h> 
 #define servoPin 4
 Servo myservo;
 String message;
@@ -11,27 +11,23 @@ float steeringAngle;
 byte speedSetting = 0;
 volatile bool move = false;  // set by receiveEvent when a new command arrives
 
-#define enA 5 //EnableA command line - should be a PWM pin
-#define enB 6 //EnableB command line - should be a PWM pin
+#define enA 5 //EnableA command line - PWM pin
+#define enB 6 //EnableB command line - PWM pin
 #define INa A0 //Channel A direction
 #define INb A1 //Channel A direction
 #define INc A2 //Channel B direction
 #define INd A3 //Channel B direction
 
-// Timing calibration at speedSetting = 200. These are starting values:
-// send "11" (forward 10 cm) and "390" (90 deg clockwise) from the keypad
-// and adjust until the robot matches the maze grid.
+
 #define MS_PER_100MM 400UL  // ms to drive 10 cm
 #define MS_PER_90DEG 650UL  // ms to turn 90 degrees
 
-// Wheel encoders. Set USE_ENCODERS to 1 once the encoder pins below are
-// confirmed against the PCB's encoder header; D2/D3 are the Nano's
-// external-interrupt pins. With 0 the timings above are used instead.
+
 #define USE_ENCODERS 0
 #define encoderLeftPin 2
 #define encoderRightPin 3
-#define PULSES_PER_100MM 20UL   // calibrate: pulses counted over 10 cm
-#define PULSES_PER_90DEG 15UL   // calibrate: pulses counted over a 90 deg turn
+#define PULSES_PER_100MM 20UL   
+#define PULSES_PER_90DEG 15UL   
 volatile unsigned long leftPulses = 0;
 volatile unsigned long rightPulses = 0;
 
@@ -62,7 +58,7 @@ void setup() {
 
 void loop() {
   if (move) {
-    noInterrupts();           // copy the command so a new I2C write can't change it mid-move
+    noInterrupts();   // copy the command so a new I2C write can't change it mid-move
     String command = message;
     move = false;
     interrupts();
@@ -71,7 +67,6 @@ void loop() {
 }
 
 
-// Runs inside the I2C interrupt: only store the command and flag it.
 // The movement (and its delays) happens in loop().
 void receiveEvent(int howMany) {
   message = "";
@@ -86,8 +81,8 @@ void executeCommand(String command) {
   Serial.print("Received command: ");
   Serial.println(command);
   order = command.substring(0, 1).toInt();
-  distance = command.substring(1).toInt() * 100;  // forward/back: quantity is in 10 cm steps -> mm
-  int angle = distance / 100;                       // turns: quantity is the angle in degrees
+  distance = command.substring(1).toInt() * 100; 
+  int angle = distance / 100;                     
   if(order == 1){
     goForwards();
     moveFor(driveTime(distance), (unsigned long)distance * PULSES_PER_100MM / 100);
@@ -122,10 +117,7 @@ unsigned long turnTime(int angle) {
   return (unsigned long)angle * MS_PER_90DEG / 90;
 }
 
-// Keep the motors running until the move is done. With encoders, stop
-// once the average wheel count reaches targetPulses (giving up after
-// twice the calibrated time in case an encoder is disconnected).
-// Without encoders, just wait the calibrated time.
+// Keep the motors running until the move is done. 
 void moveFor(unsigned long timeMs, unsigned long targetPulses) {
 #if USE_ENCODERS
   noInterrupts();

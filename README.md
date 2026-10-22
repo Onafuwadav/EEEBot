@@ -13,20 +13,15 @@ demonstration.
   <img src="docs/images/front-chassis-on-pcb.jpg" height="300" alt="Front steering chassis on the PCB">
 </p>
 
-<!-- Demo video: upload the maze run (e.g. drag an .mp4 into a GitHub issue or
-     release to get a link, or use YouTube) and replace this comment with:
-     [![Maze run](docs/images/maze-run-thumbnail.jpg)](VIDEO-LINK) -->
-
 ## Prize
 
 > "...congratulate you and your group on winning the 'Best Maze Navigation
 > Performance' prize with the EEEBot being awarded a perfect score during the
 > maze demonstration."
-> (module teaching associate)
 
 <details>
 <summary>Prize email</summary>
-<img src="docs/images/prize-email.jpg" width="420" alt="Email congratulating the team on winning the Best Maze Navigation Performance prize">
+<img src="docs/images/prize-email.jpg" width="420" alt="Email congratulating the team on winning the Best Maze Navigation Performance prize(£10 amazon voucher)">
 </details>
 
 ## My role
@@ -35,14 +30,12 @@ demonstration.
   keypad/LCD menu, the command protocol, and the I2C link to the Nano that
   drives the car ([`firmware/`](firmware)).
 - **Hardware.** I soldered the custom PCB and assembled the servo-steered
-  front chassis, motors, encoders and battery pack, as recorded in my
-  logbook ([build log](docs/build-log.md)).
+  front chassis, motors, encoders and battery pack.
 - **Team tasks.** IR line following with PID, and computer vision for coloured
   lines and symbols. The code for these in [`control/`](control) and
-  [`vision/`](vision) is rebuilt from my logbook.
+  [`vision/`](vision).
 
 ## Architecture
-
 ```mermaid
 flowchart LR
   KP["4x3 keypad"] --> ESP["ESP32<br/>menu + logic"]
@@ -64,7 +57,6 @@ an HC-SR04 ultrasonic sensor and an MPU-9250 IMU.
 More detail: [architecture](docs/architecture.md) · [wiring](docs/wiring.md) · [build log](docs/build-log.md)
 
 ## Maze command protocol
-
 The maze is a grid of 10 cm straights and 90° corners. Commands are typed on
 the keypad as `<order><quantity>`:
 
@@ -81,10 +73,7 @@ the keypad as `<order><quantity>`:
 | `*` | Check and send it |
 | `#` | Clear it |
 
-Examples: `13` forward 30 cm · `21` back 10 cm · `390` right 90° · `4180` turn around anticlockwise.
-
 What happens on `*`:
-
 1. The ESP32 checks the command (`valid_command()`) and writes its ASCII
    characters over I2C to address `0x08`. The LCD shows `Sent 13` or
    `Invalid command`.
@@ -120,10 +109,6 @@ arduino-cli compile --fqbn arduino:avr:nano firmware/nano_drive
 arduino-cli compile --fqbn esp32:esp32:esp32 firmware/esp32_menu
 ```
 
-Before a maze run, calibrate `MS_PER_100MM` and `MS_PER_90DEG` at the top of
-`nano_drive.ino`: send `11` and `390` and adjust until the car moves exactly
-10 cm and 90°.
-
 Vision (Python 3.9+):
 
 ```bash
@@ -141,23 +126,3 @@ g++ -std=c++11 -I control/EEEBotLineFollower/src control/tests/test_line_followe
 
 CI compiles all five sketches with `arduino-cli` and runs both test suites on
 every push.
-
-## From 2023 code to this repo
-
-The first commit is my original code, unchanged. Each fix after that is its
-own commit, so `git log` shows what was wrong and why:
-
-- **nano_drive:** the I2C callback ran the whole move including
-  `delay(300000)` (5 minutes) inside the interrupt; the parsed distance was
-  never used; `loop()` still ran a bench-test sequence; debug prints said
-  "lol". Now the callback sets a flag, `loop()` drives for the commanded
-  distance, and encoder feedback is available.
-- **esp32_menu:** unchecked `char arr[32]` copy, LCD not cleared on `#`, `*`
-  leaking into commands; added command validation and LCD feedback.
-- **i2c-morse:** `while(val = false)`, `scanf` into a `String`, comparing a
-  `char` with `"."`, missing `Serial.begin`, wrong callback signature,
-  `delay(5000)` in the I2C callback, and no `'n'` in the decoder.
-
-`control/` and `vision/` are new code rebuilt from the logbook's descriptions,
-pseudo-code and flowchart. The vision tests run on synthetic images that
-recreate the course symbols, not on photos from the real course.

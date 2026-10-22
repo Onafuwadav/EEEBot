@@ -5,17 +5,17 @@
 #include <math.h>
 
 String str = "";
-const byte MAX_CMD_LEN = 16; // one LCD line, and well inside the 32-byte I2C buffer
-const byte rows = 4; //four rows
-const byte cols = 3; //three columns
+const byte MAX_CMD_LEN = 16;
+const byte rows = 4; //rows
+const byte cols = 3; //columns
 char keys[rows][cols] = {
   {'1','2','3'},
   {'4','5','6'},
   {'7','8','9'},
   {'*','0','#'}
 };
-byte rowPins[rows] = {2, 0, 4, 17}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {5, 18, 19}; //connect to the column pinouts of the keypad
+byte rowPins[rows] = {2, 0, 4, 17}; //connect row pinouts of the keypad
+byte colPins[cols] = {5, 18, 19}; //connect column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 LiquidCrystal lcd(27, 14, 32, 33, 25, 26);
 
@@ -25,7 +25,7 @@ void setup()
   Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.setCursor(0, 1);
-  lcd.print("1F 2B 3CW 4ACW");  // key for the order digit
+  lcd.print("1F 2B 3CW 4ACW");  
   lcd.setCursor(0, 0);           // commands are typed on the top line
 }
 
@@ -62,10 +62,7 @@ void loop(){
   }
 }
 
-// A command is <order><quantity>: order 1 = forward, 2 = back,
-// 3 = clockwise, 4 = anticlockwise. Forward/back quantities are 10 cm
-// steps (capped at 99 so quantity * 100 still fits the Nano's 16-bit int);
-// turns must be 90 or 180 degrees.
+// 1 = forward, 2 = back, 3 = clockwise, 4 = anticlockwise
 bool valid_command(String cmd){
   if(cmd.length() < 2){
     return false;
