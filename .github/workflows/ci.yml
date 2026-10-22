@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  ESP32_URL: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+
+jobs:
+  firmware:
+    name: compile ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: esp32_menu
+            sketch: firmware/esp32_menu
+            fqbn: esp32:esp32:esp32
+          - name: nano_drive
+            sketch: firmware/nano_drive
+            fqbn: arduino:avr:nano
+          - name: line follower example
+            sketch: control/EEEBotLineFollower/examples/LineFollower
+            fqbn: arduino:avr:nano
+            library: control/EEEBotLineFollower
+          - name: morse master
+            sketch: experiments/i2c-morse/string_to_morse_master
+            fqbn: arduino:avr:nano
+          - name: morse slave
+            sketch: experiments/i2c-morse/string_to_morse_slave
+            fqbn: arduino:avr:nano
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: arduino/setup-arduino-cli@v2
+
+      - name: Install core and libraries
+        run: |
+          fqbn="${{ matrix.fqbn }}"
+          arduino-cli core update-index --additional-urls "$ESP32_URL"
+          arduino-cli core install "${fqbn%:*}" --additional-urls "$ESP32_URL"
+          arduino-cli lib install Keypad LiquidCrystal Servo
+
+      - name: Compile
+        run: |
+          extra=()
+          if [ -n "${{ matrix.library }}" ]; then extra+=(--library "${{ matrix.library }}"); fi
+          arduino-cli compile --fqbn "${{ matrix.fqbn }}" --warnings default \
+            --additional-urls "$ESP32_URL" "${extra[@]}" "${{ matrix.sketch }}"
+
+  control-tests:
+    name: control unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run
+        run: |
+          g++ -std=c++11 -Wall -Wextra \
+            -I control/EEEBotLineFollower/src \
+            control/tests/test_line_follower.cpp control/EEEBotLineFollower/src/*.cpp \
+            -o test_line_follower
+          ./test_line_follower
+
+  vision-tests:
+    name: vision pytest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vision
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: vision/pyproject.toml
+      - run: pip install -e ".[test]"
+      - run: pytest -v
+      - name: CLI smoke test
+        run: |
+          python -m eeebot_vision symbol samples/symbol_*.png
+          python -m eeebot_vision line samples/line_red_left.png --colour red
