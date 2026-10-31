@@ -21,7 +21,7 @@ demonstration.
 
 <details>
 <summary>Prize email</summary>
-<img src="docs/images/prize-email.jpg" width="420" alt="Email congratulating the team on winning the Best Maze Navigation Performance prize(£10 amazon voucher)">
+<img src="docs/images/prize-email.jpg" width="420" alt="Email congratulating the team on winning the Best Maze Navigation Performance prize (£10 amazon voucher)">
 </details>
 
 ## My role
